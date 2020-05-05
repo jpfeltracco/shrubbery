@@ -1,0 +1,17 @@
+language: rust
+os:
+        - linux
+        - osx
+compiler: gcc
+rust:
+        - stable
+        - beta
+        - nightly
+jobs:
+        allow_failures:
+                - rust: nightly
+        fast_finish: true
+cache: cargo
+addons:
+        apt:
+                packages: xorg-dev libglu1-mesa-dev
