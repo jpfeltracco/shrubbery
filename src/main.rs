@@ -13,6 +13,7 @@ fn main() {
     let mut x: i32 = 50;
     let mut y: i32 = 50;
 
+    rl.set_target_fps(60);
     while !rl.window_should_close() {
         if rl.is_key_down(KEY_A) {
             x -= 1;
