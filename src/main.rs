@@ -1,5 +1,10 @@
 use raylib::prelude::*;
 
+const PLAYER_HEIGHT: i32 = 40;
+const PLAYER_WIDTH: i32 = 10;
+const PLAYER_HEAD_RADIUS: i32 = 10;
+const PLAYER_HEAD_FUDGE: i32 = 5;
+
 fn main() {
     use raylib::consts::KeyboardKey::*;
 
@@ -23,6 +28,18 @@ fn main() {
         let mut d = rl.begin_drawing(&thread);
 
         d.clear_background(Color::WHITE);
-        d.draw_text("Hello, shrubbery!", x, y, 20, Color::BLACK);
+        d.draw_rectangle(
+            x - PLAYER_WIDTH / 2,
+            y - PLAYER_HEIGHT / 2,
+            PLAYER_WIDTH,
+            PLAYER_HEIGHT,
+            Color::VIOLET,
+        );
+        d.draw_circle(
+            x,
+            y - PLAYER_HEIGHT / 2 - PLAYER_HEAD_RADIUS + PLAYER_HEAD_FUDGE,
+            PLAYER_HEAD_RADIUS as f32,
+            Color::LIME,
+        );
     }
 }
