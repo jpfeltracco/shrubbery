@@ -17,7 +17,10 @@ fn main() {
     let x: f32 = 50.0;
     let y: f32 = 50.0;
     let player = Rectangle::new(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
-    let mut player_head_center = Vector2::new(x, y - PLAYER_HEIGHT / 2.0 - PLAYER_HEAD_RADIUS + PLAYER_HEAD_FUDGE);
+    let mut player_head_center = Vector2::new(
+        x,
+        y - PLAYER_HEIGHT / 2.0 - PLAYER_HEAD_RADIUS + PLAYER_HEAD_FUDGE,
+    );
 
     let mut delta_time;
 
@@ -26,6 +29,13 @@ fn main() {
         velocity: Vector2::new(0.0, 0.0),
         bounding_box: player,
         color: Color::VIOLET,
+    };
+
+    let mut camera = Camera2D {
+        offset: vec2(320.0, 240.0),
+        target: vec2(0., 0.),
+        rotation: 0.0,
+        zoom: 1.0,
     };
 
     rl.set_target_fps(60);
@@ -43,18 +53,19 @@ fn main() {
             player_thing.position.y += PLAYER_SPEED * delta_time;
         }
 
-        player_head_center.x = player_thing.position.x;
-        player_head_center.y = player_thing.position.y - PLAYER_HEIGHT / 2.0 - PLAYER_HEAD_RADIUS + PLAYER_HEAD_FUDGE;
+        camera.target.x += 1.0;
+        camera.target.y += 1.0;
 
         let mut d = rl.begin_drawing(&thread);
 
-        d.clear_background(Color::WHITE);
+        let mut draw = d.begin_mode_2D(camera);
 
-        player_thing.draw(&mut d);
-        d.draw_circle_v(
-            player_head_center,
-            PLAYER_HEAD_RADIUS as f32,
-            Color::LIME,
+        draw.clear_background(Color::WHITE);
+        draw.draw_circle(
+            player_thing.position.x as i32,
+            player_thing.position.y as i32,
+            10.0,
+            Color::VIOLET,
         );
     }
 }
