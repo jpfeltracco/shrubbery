@@ -1,6 +1,5 @@
 use amethyst::{
     core::transform::TransformBundle,
-    input::{is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -10,24 +9,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-struct MyState;
-
-impl SimpleState for MyState {
-    fn on_start(&mut self, _data: StateData<'_, GameData<'_, '_>>) {}
-    fn handle_event(
-        &mut self,
-        _data: StateData<'_, GameData<'_, '_>>,
-        event: StateEvent,
-    ) -> SimpleTrans {
-        if let StateEvent::Window(event) = &event {
-            if is_key_down(&event, VirtualKeyCode::Escape) {
-                return Trans::Quit;
-            }
-        }
-
-        Trans::None
-    }
-}
+mod state;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -49,7 +31,7 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(TransformBundle::new())?;
 
-    let mut game = Application::new(assets_dir, MyState, game_data)?;
+    let mut game = Application::new(assets_dir, state::MyState, game_data)?;
     game.run();
 
     Ok(())
