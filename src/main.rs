@@ -1,5 +1,6 @@
 use amethyst::{
     core::transform::TransformBundle,
+    input::{is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -13,6 +14,19 @@ struct MyState;
 
 impl SimpleState for MyState {
     fn on_start(&mut self, _data: StateData<'_, GameData<'_, '_>>) {}
+    fn handle_event(
+        &mut self,
+        _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        if let StateEvent::Window(event) = &event {
+            if is_key_down(&event, VirtualKeyCode::Escape) {
+                return Trans::Quit;
+            }
+        }
+
+        Trans::None
+    }
 }
 
 fn main() -> amethyst::Result<()> {
