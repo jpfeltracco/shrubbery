@@ -1,7 +1,21 @@
-# Shrubbery
+# shrubbery
 
-An attempt to learn Rust.
+## How to run
 
-## Build/Run
+To run the game, run the following command, which defaults to the `metal` graphics backend:
 
-`cargo run`
+```bash
+cargo run
+```
+
+Windows and Linux users may explicitly choose `"vulkan"` with the following command:
+
+```bash
+cargo run --no-default-features --features "vulkan"
+```
+
+Mac OS X users may explicitly choose `"metal"` with the following command:
+
+```bash
+cargo run --no-default-features --features "metal"
+```

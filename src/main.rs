@@ -1,71 +1,42 @@
-use raylib::prelude::*;
+use amethyst::{
+    core::transform::TransformBundle,
+    prelude::*,
+    renderer::{
+        plugins::{RenderFlat2D, RenderToWindow},
+        types::DefaultBackend,
+        RenderingBundle,
+    },
+    utils::application_root_dir,
+};
 
-mod thing;
-use thing::Thing;
+struct MyState;
 
-const PLAYER_HEIGHT: f32 = 40.0;
-const PLAYER_WIDTH: f32 = 10.0;
-const PLAYER_HEAD_RADIUS: f32 = 10.0;
-const PLAYER_HEAD_FUDGE: f32 = 20.0;
-const PLAYER_SPEED: f32 = 150.0;
+impl SimpleState for MyState {
+    fn on_start(&mut self, _data: StateData<'_, GameData<'_, '_>>) {}
+}
 
-fn main() {
-    use raylib::consts::KeyboardKey::*;
+fn main() -> amethyst::Result<()> {
+    amethyst::start_logger(Default::default());
 
-    let (mut rl, thread) = raylib::init().size(640, 480).title("Shrubbery").build();
+    let app_root = application_root_dir()?;
 
-    let x: f32 = 50.0;
-    let y: f32 = 50.0;
-    let player = Rectangle::new(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
-    let mut player_head_center = Vector2::new(
-        x,
-        y - PLAYER_HEIGHT / 2.0 - PLAYER_HEAD_RADIUS + PLAYER_HEAD_FUDGE,
-    );
+    let assets_dir = app_root.join("assets");
+    let config_dir = app_root.join("config");
+    let display_config_path = config_dir.join("display.ron");
 
-    let mut delta_time;
+    let game_data = GameDataBuilder::default()
+        .with_bundle(
+            RenderingBundle::<DefaultBackend>::new()
+                .with_plugin(
+                    RenderToWindow::from_config_path(display_config_path)?
+                        .with_clear([0.34, 0.36, 0.52, 1.0]),
+                )
+                .with_plugin(RenderFlat2D::default()),
+        )?
+        .with_bundle(TransformBundle::new())?;
 
-    let mut player_thing = Thing {
-        position: Vector2::new(x, y),
-        velocity: Vector2::new(0.0, 0.0),
-        bounding_box: player,
-        color: Color::VIOLET,
-    };
+    let mut game = Application::new(assets_dir, MyState, game_data)?;
+    game.run();
 
-    let mut camera = Camera2D {
-        offset: vec2(320.0, 240.0),
-        target: vec2(0., 0.),
-        rotation: 0.0,
-        zoom: 1.0,
-    };
-
-    rl.set_target_fps(60);
-    while !rl.window_should_close() {
-        delta_time = rl.get_frame_time();
-
-        if rl.is_key_down(KEY_A) {
-            player_thing.position.x -= PLAYER_SPEED * delta_time;
-        } else if rl.is_key_down(KEY_D) {
-            player_thing.position.x += PLAYER_SPEED * delta_time;
-        }
-        if rl.is_key_down(KEY_W) {
-            player_thing.position.y -= PLAYER_SPEED * delta_time;
-        } else if rl.is_key_down(KEY_S) {
-            player_thing.position.y += PLAYER_SPEED * delta_time;
-        }
-
-        camera.target.x += 1.0;
-        camera.target.y += 1.0;
-
-        let mut d = rl.begin_drawing(&thread);
-
-        let mut draw = d.begin_mode_2D(camera);
-
-        draw.clear_background(Color::WHITE);
-        draw.draw_circle(
-            player_thing.position.x as i32,
-            player_thing.position.y as i32,
-            10.0,
-            Color::VIOLET,
-        );
-    }
+    Ok(())
 }
