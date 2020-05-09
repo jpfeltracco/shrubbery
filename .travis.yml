@@ -2,7 +2,10 @@ language: rust
 os:
         - linux
         - osx
-compiler: gcc
+        - windows
+script:
+        - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cargo build --no-default-features --features "metal"; fi
+        - if [ "$TRAVIS_OS_NAME" != "osx" ]; then cargo build --no-default-features --features "vulkan"; fi
 rust:
         - stable
         - beta
@@ -14,4 +17,4 @@ jobs:
 cache: cargo
 addons:
         apt:
-                packages: xorg-dev libglu1-mesa-dev
+                packages: xorg-dev libglu1-mesa-dev pkg-config libasound2-dev
