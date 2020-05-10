@@ -2,8 +2,13 @@ use amethyst::{
     core::transform::Transform,
     input::{is_key_down, VirtualKeyCode},
     prelude::*,
+    assets::{AssetStorage, Loader, Handle},
+    renderer::{
+        Camera, ImageFormat, SpriteSheetFormat,
+        SpriteSheet, SpriteRender, Texture, Transparent,
+    },
     renderer::debug_drawing::{DebugLines, DebugLinesComponent, DebugLinesParams},
-    renderer::{palette::Srgba, Camera},
+    renderer::palette::Srgba,
     window::ScreenDimensions,
 };
 
@@ -14,6 +19,10 @@ impl SimpleState for MyState {
         let world = data.world;
 
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+
+        // Assets
+        let sprite = load_sprite(world);
+        init_sprite(world, sprite, &dimensions);
 
         init_lines(world);
         init_camera(world, &dimensions);
@@ -39,6 +48,53 @@ fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
         .create_entity()
         .with(Camera::standard_2d(dimensions.width(), dimensions.height()))
         .with(local_transform)
+        .build();
+}
+
+fn load_sprite(world: &mut World) -> Handle<SpriteSheet> {
+    // Load the texture for our sprite
+    let texture_handle = {
+        let loader = world.read_resource::<Loader>();
+        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        loader.load(
+            "sprites/knight_sprite_sheet.png",
+            ImageFormat::default(),
+            (),
+            &texture_storage,
+        )
+    };
+
+    // Load the spritesheet definition file, which contains metadata on our
+    // spritesheet texture.
+    let loader = world.read_resource::<Loader>();
+    let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+
+    loader.load(
+        "sprites/knight_sprite_sheet.ron",
+        SpriteSheetFormat(texture_handle),
+        (),
+        &sheet_storage,
+    )
+}
+
+fn init_sprite(world: &mut World, sprite_handle: Handle<SpriteSheet>, dimensions: &ScreenDimensions) {
+    // Center our sprite around the center of the window
+    let x = dimensions.width() * 0.5;
+    let y = dimensions.height() * 0.5;
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(x, y, 0.);
+
+    let sprite_renderer = SpriteRender {
+        sprite_sheet: sprite_handle,
+        sprite_number: 0,
+    };
+
+    // Create an entity for each sprite and attach the `SpriteRender` as well as the transform.
+    world
+        .create_entity()
+        .with(sprite_renderer)
+        .with(transform)
+        .with(Transparent)
         .build();
 }
 
